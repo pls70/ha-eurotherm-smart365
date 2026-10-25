@@ -12,7 +12,7 @@ jobs:
       - uses: hacs/action@main
         with:
           category: integration
-          ignore: brands
+          ignore: brands description topics
   hassfest:
     runs-on: ubuntu-latest
     steps:
