@@ -1,0 +1,98 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Eurotherm SmartComfort 365",
+        "description": "Inserisci l'indirizzo IP del pannello SmartComfort 365. Deve essere raggiungibile da Home Assistant sulla rete locale (Modbus TCP).",
+        "data": {
+          "host": "Indirizzo IP",
+          "port": "Porta",
+          "unit_id": "ID unità Modbus"
+        },
+        "data_description": {
+          "host": "Lo trovi sul pannello in Impostazioni > Rete.",
+          "unit_id": "Lascia 1 se non l'hai cambiato sul pannello."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Impossibile collegarsi al pannello via Modbus TCP. Controlla l'IP e che Home Assistant sia sulla stessa rete."
+    },
+    "abort": {
+      "already_configured": "Questo pannello è già configurato."
+    }
+  },
+  "entity": {
+    "climate": {
+      "room": {
+        "state_attributes": {
+          "room_mode": {
+            "name": "Modalità stanza",
+            "state": {
+              "off": "Spento",
+              "auto": "Programma",
+              "manual": "Manuale",
+              "manual_temporary": "Manuale temporaneo",
+              "party": "Party",
+              "early_bird": "Early bird",
+              "goodnight": "Buonanotte"
+            }
+          }
+        }
+      }
+    },
+    "sensor": {
+      "outdoor_temperature": {
+        "name": "Temperatura esterna"
+      },
+      "target_temperature": {
+        "name": "Temperatura obiettivo"
+      },
+      "dewpoint": {
+        "name": "Punto di rugiada"
+      },
+      "flow_temperature": {
+        "name": "Temperatura mandata modulo {module}"
+      },
+      "flow_setpoint": {
+        "name": "Setpoint mandata modulo {module}"
+      }
+    },
+    "binary_sensor": {
+      "sensor_fault": {
+        "name": "Guasto sensore"
+      },
+      "condensation": {
+        "name": "Condensa"
+      }
+    },
+    "select": {
+      "zone_mode": {
+        "name": "Modalità",
+        "state": {
+          "home": "A casa",
+          "off": "Spento",
+          "away": "Fuori casa",
+          "holiday": "Vacanza"
+        }
+      },
+      "season": {
+        "name": "Stagione",
+        "state": {
+          "heating": "Riscaldamento",
+          "cooling": "Raffrescamento"
+        }
+      }
+    },
+    "switch": {
+      "air_boost": {
+        "name": "Boost ricambio aria"
+      }
+    }
+  },
+  "exceptions": {
+    "holiday_read_only": {
+      "message": "La modalità vacanza si imposta solo dal pannello o dall'app Smart365."
+    }
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Eurotherm SmartComfort 365",
+        "description": "Enter the IP address of the SmartComfort 365 panel. It must be reachable from Home Assistant on the local network (Modbus TCP).",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "unit_id": "Modbus unit ID"
+        },
+        "data_description": {
+          "host": "IP address shown on the panel under Settings > Network.",
+          "unit_id": "Leave 1 unless changed on the panel."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to the panel over Modbus TCP. Check the IP address and that Home Assistant is on the same network."
+    },
+    "abort": {
+      "already_configured": "This panel is already configured."
+    }
+  },
+  "entity": {
+    "climate": {
+      "room": {
+        "state_attributes": {
+          "room_mode": {
+            "name": "Room mode",
+            "state": {
+              "off": "Off",
+              "auto": "Program",
+              "manual": "Manual",
+              "manual_temporary": "Temporary manual",
+              "party": "Party",
+              "early_bird": "Early bird",
+              "goodnight": "Goodnight"
+            }
+          }
+        }
+      }
+    },
+    "sensor": {
+      "outdoor_temperature": {
+        "name": "Outdoor temperature"
+      },
+      "target_temperature": {
+        "name": "Target temperature"
+      },
+      "dewpoint": {
+        "name": "Dew point"
+      },
+      "flow_temperature": {
+        "name": "Module {module} flow temperature"
+      },
+      "flow_setpoint": {
+        "name": "Module {module} flow setpoint"
+      }
+    },
+    "binary_sensor": {
+      "sensor_fault": {
+        "name": "Sensor fault"
+      },
+      "condensation": {
+        "name": "Condensation"
+      }
+    },
+    "select": {
+      "zone_mode": {
+        "name": "Mode",
+        "state": {
+          "home": "Home",
+          "off": "Off",
+          "away": "Away",
+          "holiday": "Holiday"
+        }
+      },
+      "season": {
+        "name": "Season",
+        "state": {
+          "heating": "Heating",
+          "cooling": "Cooling"
+        }
+      }
+    },
+    "switch": {
+      "air_boost": {
+        "name": "Air renewal boost"
+      }
+    }
+  },
+  "exceptions": {
+    "holiday_read_only": {
+      "message": "Holiday mode can only be set from the panel or the Smart365 app."
+    }
+  }
+}

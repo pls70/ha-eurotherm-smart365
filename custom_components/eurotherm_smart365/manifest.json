@@ -1,0 +1,12 @@
+{
+  "domain": "eurotherm_smart365",
+  "name": "Eurotherm Smart365",
+  "codeowners": ["@pls70"],
+  "config_flow": true,
+  "documentation": "https://github.com/pls70/ha-eurotherm-smart365",
+  "integration_type": "hub",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/pls70/ha-eurotherm-smart365/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
