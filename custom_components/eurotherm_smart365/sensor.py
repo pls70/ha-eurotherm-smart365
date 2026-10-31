@@ -83,7 +83,11 @@ async def async_setup_entry(
     coordinator = entry.runtime_data
     entities: list[SensorEntity] = [OutdoorTemperatureSensor(coordinator)]
     for module in coordinator.topology.modules:
-        entities.append(ModuleSensor(coordinator, module, "flow_temperature", MODULE_FLOW_TEMP))
+        # A module without a flow probe always reports 0: skip the sensor.
+        if coordinator.data.modules[module][MODULE_FLOW_TEMP] != 0:
+            entities.append(
+                ModuleSensor(coordinator, module, "flow_temperature", MODULE_FLOW_TEMP)
+            )
         entities.append(ModuleSensor(coordinator, module, "flow_setpoint", MODULE_FLOW_SETPOINT))
     for room in coordinator.topology.rooms:
         has_humidity = room.sensor_type == SENSOR_TYPE_TEMP_HUMIDITY

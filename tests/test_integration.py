@@ -110,3 +110,21 @@ async def test_negative_outdoor_temperature(hass: HomeAssistant, device: FakeSma
     await setup(hass, device)
     outdoor = [s for s in hass.states.async_all("sensor") if "outdoor" in s.entity_id]
     assert outdoor and float(outdoor[0].state) == -3.5
+
+
+def flow_sensors(hass: HomeAssistant, key: str) -> list[str]:
+    registry = er.async_get(hass)
+    return [e.entity_id for e in registry.entities.values() if e.unique_id.endswith(key)]
+
+
+async def test_flow_probe_present(hass: HomeAssistant, device: FakeSmart365) -> None:
+    await setup(hass, device)
+    assert flow_sensors(hass, "module0_flow_temperature")
+    assert flow_sensors(hass, "module0_flow_setpoint")
+
+
+async def test_no_flow_probe(hass: HomeAssistant, device: FakeSmart365) -> None:
+    device.registers[1146] = 0
+    await setup(hass, device)
+    assert not flow_sensors(hass, "module0_flow_temperature")
+    assert flow_sensors(hass, "module0_flow_setpoint")
