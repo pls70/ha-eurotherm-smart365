@@ -19,7 +19,7 @@ from homeassistant.helpers.selector import EntitySelector, EntitySelectorConfig
 
 from .const import CONF_UNIT_ID, DEFAULT_PORT, DEFAULT_UNIT_ID, DOMAIN, MODEL, REG_SERIAL_HIGH
 from .modbus import Smart365Client, Smart365Error
-from .program import CONF_LEVEL2_SCHEDULE, CONF_LEVEL3_SCHEDULE
+from .program import CONF_CLIMATES, CONF_LEVEL2_SCHEDULE, CONF_LEVEL3_SCHEDULE
 
 STEP_USER_SCHEMA = vol.Schema(
     {
@@ -86,10 +86,12 @@ class Smart365OptionsFlow(OptionsFlow):
         if entry.state is ConfigEntryState.LOADED:
             zones = entry.runtime_data.topology.zones or zones
         selector = EntitySelector(EntitySelectorConfig(domain="schedule"))
+        climates = EntitySelector(EntitySelectorConfig(domain="climate", multiple=True))
         fields: dict = {}
         for zone in zones:
             for key in (CONF_LEVEL2_SCHEDULE, CONF_LEVEL3_SCHEDULE):
                 fields[vol.Optional(key.format(zone=zone))] = selector
+            fields[vol.Optional(CONF_CLIMATES.format(zone=zone))] = climates
         return self.async_show_form(
             step_id="init",
             data_schema=self.add_suggested_values_to_schema(vol.Schema(fields), entry.options),

@@ -7,6 +7,11 @@ schedule is on the zone uses level 3, otherwise when the level 2 schedule is
 on it uses level 2, otherwise level 1. When the level changes, every room of
 the zone is put in manual mode at that level's temperature. Turning the
 program off puts the rooms back on the panel's own program.
+
+Other thermostats (for example air conditioners or bathroom heaters from
+other integrations) can be added to a zone's program: they get the same
+level temperature, but only while they are on in a heating mode. The
+program never turns them on or off.
 """
 
 from __future__ import annotations
@@ -15,7 +20,12 @@ import asyncio
 from collections.abc import Callable
 import logging
 
-from homeassistant.const import STATE_ON
+from homeassistant.components.climate import (
+    DOMAIN as CLIMATE_DOMAIN,
+    SERVICE_SET_TEMPERATURE,
+    HVACMode,
+)
+from homeassistant.const import ATTR_ENTITY_ID, ATTR_TEMPERATURE, STATE_ON
 from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant, callback
 from homeassistant.helpers.event import async_track_state_change_event
 
@@ -38,6 +48,8 @@ LEVELS = (1, 2, 3)
 DEFAULT_LEVEL_TEMPS = {1: 17.0, 2: 20.0, 3: 21.0}
 CONF_LEVEL2_SCHEDULE = "zone{zone}_level2_schedule"
 CONF_LEVEL3_SCHEDULE = "zone{zone}_level3_schedule"
+CONF_CLIMATES = "zone{zone}_climates"
+HEATING_HVAC_MODES = {HVACMode.HEAT, HVACMode.AUTO, HVACMode.HEAT_COOL}
 
 
 class ZoneProgram:
@@ -53,6 +65,7 @@ class ZoneProgram:
             2: options.get(CONF_LEVEL2_SCHEDULE.format(zone=zone)) or None,
             3: options.get(CONF_LEVEL3_SCHEDULE.format(zone=zone)) or None,
         }
+        self.climates: list[str] = list(options.get(CONF_CLIMATES.format(zone=zone)) or [])
         self._listeners: list[Callable[[], None]] = []
         self._unsubs: list[CALLBACK_TYPE] = []
         self._started = False
@@ -107,6 +120,10 @@ class ZoneProgram:
             self._unsubs.append(
                 async_track_state_change_event(self.hass, entity_ids, self._schedule_changed)
             )
+        if self.climates:
+            self._unsubs.append(
+                async_track_state_change_event(self.hass, self.climates, self._climate_changed)
+            )
         self._unsubs.append(self.coordinator.async_add_listener(self._coordinator_updated))
         self._last_zone_active = self.zone_active
         self._schedule_apply()
@@ -122,6 +139,17 @@ class ZoneProgram:
     def _schedule_changed(self, event: Event) -> None:
         self._notify()
         self._schedule_apply()
+
+    @callback
+    def _climate_changed(self, event: Event) -> None:
+        old, new = event.data["old_state"], event.data["new_state"]
+        if (
+            new is not None
+            and new.state in HEATING_HVAC_MODES
+            and (old is None or old.state not in HEATING_HVAC_MODES)
+        ):
+            # A thermostat was just turned on: give it the current level.
+            self._schedule_apply()
 
     @callback
     def _coordinator_updated(self) -> None:
@@ -190,6 +218,23 @@ class ZoneProgram:
         if wrote:
             _LOGGER.debug("Zone %s: program level %s, %.1f °C", self.zone, self.level, target)
             await self.coordinator.async_request_refresh()
+        await self._async_apply_climates(target)
+
+    async def _async_apply_climates(self, target: float) -> None:
+        """Give the other thermostats of the zone the level temperature."""
+        for entity_id in self.climates:
+            state = self.hass.states.get(entity_id)
+            if state is None or state.state not in HEATING_HVAC_MODES:
+                continue
+            if state.attributes.get(ATTR_TEMPERATURE) == target:
+                continue
+            data = {ATTR_ENTITY_ID: entity_id, ATTR_TEMPERATURE: target}
+            try:
+                await self.hass.services.async_call(
+                    CLIMATE_DOMAIN, SERVICE_SET_TEMPERATURE, data, blocking=True
+                )
+            except Exception:  # noqa: BLE001 - one device must not stop the others
+                _LOGGER.warning("Zone %s: cannot set %s to %.1f °C", self.zone, entity_id, target)
 
     async def async_release(self) -> None:
         """Give the zone's rooms back to the panel's own program."""

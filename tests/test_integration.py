@@ -8,7 +8,7 @@ from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import entity_registry as er
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant_custom_component.common import MockConfigEntry, async_mock_service
 
 from custom_components.eurotherm_smart365.const import CONF_UNIT_ID, DOMAIN
 
@@ -250,3 +250,45 @@ async def test_options_flow(hass: HomeAssistant, device: FakeSmart365) -> None:
     await hass.async_block_till_done()
     program = hass.config_entries.async_entries(DOMAIN)[0].runtime_data.programs[0]
     assert program.schedules == {2: "schedule.livello_2", 3: None}
+
+
+async def test_ha_program_other_thermostats(hass: HomeAssistant, device: FakeSmart365) -> None:
+    hass.states.async_set("schedule.livello_2", "off")
+    hass.states.async_set("climate.gree", "heat", {"temperature": 22})
+    hass.states.async_set("climate.stufetta", "off", {"temperature": 22})
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data=entry_data(device),
+        unique_id="65538",
+        options={
+            "zone0_level2_schedule": "schedule.livello_2",
+            "zone0_climates": ["climate.gree", "climate.stufetta"],
+        },
+    )
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    # Replace the real climate service (loaded by the integration) with a recorder.
+    calls = async_mock_service(hass, "climate", "set_temperature")
+
+    await hass.services.async_call(
+        "switch", "turn_on", {"entity_id": "switch.zona_1_home_assistant_program"}, blocking=True
+    )
+    await refresh(hass)
+    # Only the thermostat that is on gets the level temperature.
+    assert [(c.data["entity_id"], c.data["temperature"]) for c in calls] == [("climate.gree", 17.0)]
+
+    calls.clear()
+    hass.states.async_set("climate.gree", "heat", {"temperature": 17.0})
+    hass.states.async_set("schedule.livello_2", "on")
+    await refresh(hass)
+    assert [(c.data["entity_id"], c.data["temperature"]) for c in calls] == [("climate.gree", 20.0)]
+
+    # A heater turned on later gets the current level at once.
+    calls.clear()
+    hass.states.async_set("climate.gree", "heat", {"temperature": 20.0})
+    hass.states.async_set("climate.stufetta", "heat", {"temperature": 22})
+    await refresh(hass)
+    assert [(c.data["entity_id"], c.data["temperature"]) for c in calls] == [
+        ("climate.stufetta", 20.0)
+    ]

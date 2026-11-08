@@ -144,7 +144,7 @@
     "step": {
       "init": {
         "title": "Home Assistant weekly program",
-        "description": "Pick the schedule helpers (Settings > Devices & services > Helpers > Schedule) that define when each zone uses level 2 and level 3. Outside both, the zone uses level 1. Level 3 wins when both are on.",
+        "description": "Pick the schedule helpers (Settings > Devices & services > Helpers > Schedule) that define when each zone uses level 2 and level 3. Outside both, the zone uses level 1. Level 3 wins when both are on. Other thermostats (for example air conditioners or bathroom heaters) can follow the same program: they get the level temperature while they are on in heating, but are never turned on or off.",
         "data": {
           "zone0_level2_schedule": "Zone 1: level 2 schedule",
           "zone0_level3_schedule": "Zone 1: level 3 schedule",
@@ -161,7 +161,15 @@
           "zone6_level2_schedule": "Zone 7: level 2 schedule",
           "zone6_level3_schedule": "Zone 7: level 3 schedule",
           "zone7_level2_schedule": "Zone 8: level 2 schedule",
-          "zone7_level3_schedule": "Zone 8: level 3 schedule"
+          "zone7_level3_schedule": "Zone 8: level 3 schedule",
+          "zone0_climates": "Zone 1: other thermostats",
+          "zone1_climates": "Zone 2: other thermostats",
+          "zone2_climates": "Zone 3: other thermostats",
+          "zone3_climates": "Zone 4: other thermostats",
+          "zone4_climates": "Zone 5: other thermostats",
+          "zone5_climates": "Zone 6: other thermostats",
+          "zone6_climates": "Zone 7: other thermostats",
+          "zone7_climates": "Zone 8: other thermostats"
         }
       }
     }

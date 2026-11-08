@@ -30,10 +30,11 @@ Il pannello **non espone via Modbus il suo programma settimanale** (né le fasce
 - **Programmazione livello 2** e **livello 3**: due helper *Programmazione* di Home Assistant in cui disegni le fasce della settimana. Dove è attivo il livello 3 vale il livello 3, altrimenti dove è attivo il livello 2 vale il livello 2, altrimenti il livello 1.
 - **Programma Home Assistant** (interruttore, per zona): acceso, a ogni cambio di livello le stanze della zona passano in *manuale* alla temperatura del livello; spento, le stanze tornano al programma del pannello.
 - **Livello programma** (sensore, per zona): il livello attivo adesso.
+- **Altri termostati** (facoltativo): condizionatori, stufette o qualsiasi entità `climate` di altre integrazioni possono seguire lo stesso programma. Ricevono la temperatura del livello solo quando sono accesi in riscaldamento (o automatico), e non vengono mai accesi o spenti. Se ne accendi uno, prende subito la temperatura del livello attivo.
 
 Configurazione:
 1. **Impostazioni → Dispositivi e servizi → Aiutanti → Crea aiutante → Programmazione**: crea "Livello 2" e "Livello 3" e disegna le fasce.
-2. **Impostazioni → Dispositivi e servizi → Eurotherm Smart365 → Configura**: collega i due helper alla zona.
+2. **Impostazioni → Dispositivi e servizi → Eurotherm Smart365 → Configura**: collega i due helper alla zona e, se vuoi, scegli gli altri termostati.
 3. Imposta le temperature dei 3 livelli nella pagina del dispositivo "Zona 1" e accendi **Programma Home Assistant**.
 
 Da sapere:

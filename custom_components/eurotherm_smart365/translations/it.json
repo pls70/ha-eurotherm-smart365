@@ -144,7 +144,7 @@
     "step": {
       "init": {
         "title": "Programma settimanale in Home Assistant",
-        "description": "Scegli gli helper Programmazione (Impostazioni > Dispositivi e servizi > Aiutanti > Programmazione) che dicono quando ogni zona usa il livello 2 e il livello 3. Fuori da entrambi la zona usa il livello 1. Se sono attivi tutti e due vince il livello 3.",
+        "description": "Scegli gli helper Programmazione (Impostazioni > Dispositivi e servizi > Aiutanti > Programmazione) che dicono quando ogni zona usa il livello 2 e il livello 3. Fuori da entrambi la zona usa il livello 1. Se sono attivi tutti e due vince il livello 3. Altri termostati (per esempio condizionatori o stufette dei bagni) possono seguire lo stesso programma: ricevono la temperatura del livello quando sono accesi in riscaldamento, ma non vengono mai accesi o spenti.",
         "data": {
           "zone0_level2_schedule": "Zona 1: programmazione livello 2",
           "zone0_level3_schedule": "Zona 1: programmazione livello 3",
@@ -161,7 +161,15 @@
           "zone6_level2_schedule": "Zona 7: programmazione livello 2",
           "zone6_level3_schedule": "Zona 7: programmazione livello 3",
           "zone7_level2_schedule": "Zona 8: programmazione livello 2",
-          "zone7_level3_schedule": "Zona 8: programmazione livello 3"
+          "zone7_level3_schedule": "Zona 8: programmazione livello 3",
+          "zone0_climates": "Zona 1: altri termostati",
+          "zone1_climates": "Zona 2: altri termostati",
+          "zone2_climates": "Zona 3: altri termostati",
+          "zone3_climates": "Zona 4: altri termostati",
+          "zone4_climates": "Zona 5: altri termostati",
+          "zone5_climates": "Zona 6: altri termostati",
+          "zone6_climates": "Zona 7: altri termostati",
+          "zone7_climates": "Zona 8: altri termostati"
         }
       }
     }
