@@ -21,6 +21,19 @@ Le stanze si chiamano "Stanza 1", "Stanza 2"… nell'ordine del modulo: rinomina
 
 Consiglio: assegna al pannello un IP fisso (riserva DHCP sul router).
 
+## Diagnostica: leggere i registri grezzi
+
+L'azione **Eurotherm Smart365: Leggi registri** (`eurotherm_smart365.read_registers`) legge registri Modbus qualsiasi e restituisce i valori, senza scrivere nulla. Serve a esplorare parti della mappa non ancora usate dall'integrazione (per esempio il programma settimanale). Da **Strumenti per sviluppatori → Azioni**:
+
+```yaml
+action: eurotherm_smart365.read_registers
+data:
+  address: 100
+  count: 130
+```
+
+I registri che il pannello rifiuta compaiono come `null`.
+
 ## Limiti noti
 
 - Il protocollo Modbus non espone se una stanza sta "chiamando calore".

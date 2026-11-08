@@ -93,6 +93,29 @@
   "exceptions": {
     "holiday_read_only": {
       "message": "La modalità vacanza si imposta solo dal pannello o dall'app Smart365."
+    },
+    "no_loaded_entry": {
+      "message": "Nessun pannello Eurotherm Smart365 è caricato."
+    }
+  },
+  "services": {
+    "read_registers": {
+      "name": "Leggi registri",
+      "description": "Legge i registri Modbus grezzi dal pannello (diagnostica, per esplorare la mappa dei registri). I registri rifiutati dal pannello sono restituiti come null.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Pannello",
+          "description": "Pannello da cui leggere. Lascia vuoto se ne hai uno solo."
+        },
+        "address": {
+          "name": "Indirizzo",
+          "description": "Primo registro da leggere."
+        },
+        "count": {
+          "name": "Quantità",
+          "description": "Numero di registri da leggere (max 1000)."
+        }
+      }
     }
   }
 }

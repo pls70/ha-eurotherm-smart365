@@ -128,3 +128,20 @@ async def test_no_flow_probe(hass: HomeAssistant, device: FakeSmart365) -> None:
     await setup(hass, device)
     assert not flow_sensors(hass, "module0_flow_temperature")
     assert flow_sensors(hass, "module0_flow_setpoint")
+
+
+async def test_read_registers_service(hass: HomeAssistant, device: FakeSmart365) -> None:
+    await setup(hass, device)
+    response = await hass.services.async_call(
+        DOMAIN,
+        "read_registers",
+        {"address": 100, "count": 8},
+        blocking=True,
+        return_response=True,
+    )
+    assert response["count"] == 8
+    regs = response["registers"]
+    assert regs["101"] == 1
+    assert regs["105"] == 1
+    # Registers the panel refuses come back as null.
+    assert regs["106"] is None and regs["107"] is None

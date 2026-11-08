@@ -93,6 +93,29 @@
   "exceptions": {
     "holiday_read_only": {
       "message": "Holiday mode can only be set from the panel or the Smart365 app."
+    },
+    "no_loaded_entry": {
+      "message": "No Eurotherm Smart365 panel is loaded."
+    }
+  },
+  "services": {
+    "read_registers": {
+      "name": "Read registers",
+      "description": "Reads raw Modbus holding registers from the panel (diagnostics, to explore the register map). Registers the panel refuses are returned as null.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Panel",
+          "description": "Panel to read from. Leave empty if you have only one."
+        },
+        "address": {
+          "name": "Address",
+          "description": "First register to read."
+        },
+        "count": {
+          "name": "Count",
+          "description": "Number of registers to read (max 1000)."
+        }
+      }
     }
   }
 }
