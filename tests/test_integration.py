@@ -145,3 +145,108 @@ async def test_read_registers_service(hass: HomeAssistant, device: FakeSmart365)
     assert regs["105"] == 1
     # Registers the panel refuses come back as null.
     assert regs["106"] is None and regs["107"] is None
+
+
+ROOM_MODE_REGS = [1209 + 400 * r for r in range(6)]
+ROOM_MANUAL_REGS = [1210 + 400 * r for r in range(6)]
+
+
+def manual_writes(temp: int) -> list[tuple[int, int]]:
+    return [
+        w for r in range(6) for w in ((ROOM_MANUAL_REGS[r], temp), (ROOM_MODE_REGS[r], 2))
+    ]
+
+
+async def refresh(hass: HomeAssistant) -> None:
+    await hass.async_block_till_done()
+    await hass.config_entries.async_entries(DOMAIN)[0].runtime_data.async_refresh()
+    await hass.async_block_till_done()
+
+
+async def test_ha_program(hass: HomeAssistant, device: FakeSmart365) -> None:
+    hass.states.async_set("schedule.livello_2", "off")
+    hass.states.async_set("schedule.livello_3", "off")
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        data=entry_data(device),
+        unique_id="65538",
+        options={
+            "zone0_level2_schedule": "schedule.livello_2",
+            "zone0_level3_schedule": "schedule.livello_3",
+        },
+    )
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    switch = "switch.zona_1_home_assistant_program"
+    sensor = "sensor.zona_1_program_level"
+    assert hass.states.get(switch).state == "off"
+    assert hass.states.get(sensor).state == "level1"
+    assert hass.states.get("number.zona_1_program_level_1").state == "17.0"
+
+    # Schedules alone do nothing while the program is off.
+    hass.states.async_set("schedule.livello_2", "on")
+    await refresh(hass)
+    assert device.writes == []
+    assert hass.states.get(sensor).state == "level2"
+    hass.states.async_set("schedule.livello_2", "off")
+    await refresh(hass)
+
+    await hass.services.async_call("switch", "turn_on", {"entity_id": switch}, blocking=True)
+    await refresh(hass)
+    assert device.writes == manual_writes(170)
+    assert hass.states.get("climate.stanza_1").state == HVACMode.HEAT
+
+    device.writes.clear()
+    hass.states.async_set("schedule.livello_2", "on")
+    await refresh(hass)
+    assert device.writes == manual_writes(200)
+
+    # Level 3 wins over level 2.
+    device.writes.clear()
+    hass.states.async_set("schedule.livello_3", "on")
+    await refresh(hass)
+    assert device.writes == manual_writes(210)
+    assert hass.states.get(sensor).state == "level3"
+
+    # Changing the active level's temperature applies it at once.
+    device.writes.clear()
+    await hass.services.async_call(
+        "number", "set_value",
+        {"entity_id": "number.zona_1_program_level_3", "value": 21.5}, blocking=True,
+    )
+    await refresh(hass)
+    assert device.writes == manual_writes(215)
+
+    # Zone away: the program leaves the rooms alone, and catches up when home again.
+    device.writes.clear()
+    device.registers[102] = 2
+    await refresh(hass)
+    hass.states.async_set("schedule.livello_3", "off")
+    await refresh(hass)
+    assert device.writes == []
+    device.registers[102] = 0
+    await refresh(hass)
+    await refresh(hass)
+    assert device.writes == manual_writes(200)
+
+    # Off: rooms go back to the panel's program.
+    device.writes.clear()
+    await hass.services.async_call("switch", "turn_off", {"entity_id": switch}, blocking=True)
+    await refresh(hass)
+    assert device.writes == [(reg, 1) for reg in ROOM_MODE_REGS]
+
+
+async def test_options_flow(hass: HomeAssistant, device: FakeSmart365) -> None:
+    hass.states.async_set("schedule.livello_2", "off")
+    entry = await setup(hass, device)
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    assert result["type"] is FlowResultType.FORM
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"zone0_level2_schedule": "schedule.livello_2"}
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    await hass.async_block_till_done()
+    program = hass.config_entries.async_entries(DOMAIN)[0].runtime_data.programs[0]
+    assert program.schedules == {2: "schedule.livello_2", 3: None}

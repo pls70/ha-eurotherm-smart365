@@ -6,11 +6,20 @@ from typing import Any
 
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
+from homeassistant.config_entries import (
+    ConfigEntry,
+    ConfigEntryState,
+    ConfigFlow,
+    ConfigFlowResult,
+    OptionsFlow,
+)
 from homeassistant.const import CONF_HOST, CONF_PORT
+from homeassistant.core import callback
+from homeassistant.helpers.selector import EntitySelector, EntitySelectorConfig
 
 from .const import CONF_UNIT_ID, DEFAULT_PORT, DEFAULT_UNIT_ID, DOMAIN, MODEL, REG_SERIAL_HIGH
 from .modbus import Smart365Client, Smart365Error
+from .program import CONF_LEVEL2_SCHEDULE, CONF_LEVEL3_SCHEDULE
 
 STEP_USER_SCHEMA = vol.Schema(
     {
@@ -36,6 +45,12 @@ class Smart365ConfigFlow(ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry: ConfigEntry) -> OptionsFlow:
+        """Options: schedules of the Home Assistant weekly program."""
+        return Smart365OptionsFlow()
+
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Ask for the panel address."""
         errors: dict[str, str] = {}
@@ -56,4 +71,26 @@ class Smart365ConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=self.add_suggested_values_to_schema(STEP_USER_SCHEMA, user_input),
             errors=errors,
+        )
+
+
+class Smart365OptionsFlow(OptionsFlow):
+    """Link Home Assistant schedule helpers to each zone's program levels."""
+
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
+        if user_input is not None:
+            return self.async_create_entry(data=user_input)
+
+        entry = self.config_entry
+        zones = [0]
+        if entry.state is ConfigEntryState.LOADED:
+            zones = entry.runtime_data.topology.zones or zones
+        selector = EntitySelector(EntitySelectorConfig(domain="schedule"))
+        fields: dict = {}
+        for zone in zones:
+            for key in (CONF_LEVEL2_SCHEDULE, CONF_LEVEL3_SCHEDULE):
+                fields[vol.Optional(key.format(zone=zone))] = selector
+        return self.async_show_form(
+            step_id="init",
+            data_schema=self.add_suggested_values_to_schema(vol.Schema(fields), entry.options),
         )

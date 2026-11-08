@@ -56,6 +56,14 @@
       },
       "flow_setpoint": {
         "name": "Module {module} flow setpoint"
+      },
+      "program_level": {
+        "name": "Program level",
+        "state": {
+          "level1": "Level 1",
+          "level2": "Level 2",
+          "level3": "Level 3"
+        }
       }
     },
     "binary_sensor": {
@@ -87,6 +95,20 @@
     "switch": {
       "air_boost": {
         "name": "Air renewal boost"
+      },
+      "ha_program": {
+        "name": "Home Assistant program"
+      }
+    },
+    "number": {
+      "program_level1": {
+        "name": "Program level 1"
+      },
+      "program_level2": {
+        "name": "Program level 2"
+      },
+      "program_level3": {
+        "name": "Program level 3"
       }
     }
   },
@@ -114,6 +136,32 @@
         "count": {
           "name": "Count",
           "description": "Number of registers to read (max 1000)."
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Home Assistant weekly program",
+        "description": "Pick the schedule helpers (Settings > Devices & services > Helpers > Schedule) that define when each zone uses level 2 and level 3. Outside both, the zone uses level 1. Level 3 wins when both are on.",
+        "data": {
+          "zone0_level2_schedule": "Zone 1: level 2 schedule",
+          "zone0_level3_schedule": "Zone 1: level 3 schedule",
+          "zone1_level2_schedule": "Zone 2: level 2 schedule",
+          "zone1_level3_schedule": "Zone 2: level 3 schedule",
+          "zone2_level2_schedule": "Zone 3: level 2 schedule",
+          "zone2_level3_schedule": "Zone 3: level 3 schedule",
+          "zone3_level2_schedule": "Zone 4: level 2 schedule",
+          "zone3_level3_schedule": "Zone 4: level 3 schedule",
+          "zone4_level2_schedule": "Zone 5: level 2 schedule",
+          "zone4_level3_schedule": "Zone 5: level 3 schedule",
+          "zone5_level2_schedule": "Zone 6: level 2 schedule",
+          "zone5_level3_schedule": "Zone 6: level 3 schedule",
+          "zone6_level2_schedule": "Zone 7: level 2 schedule",
+          "zone6_level3_schedule": "Zone 7: level 3 schedule",
+          "zone7_level2_schedule": "Zone 8: level 2 schedule",
+          "zone7_level3_schedule": "Zone 8: level 3 schedule"
         }
       }
     }
