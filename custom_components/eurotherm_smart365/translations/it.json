@@ -56,6 +56,14 @@
       },
       "flow_setpoint": {
         "name": "Setpoint mandata modulo {module}"
+      },
+      "program_level": {
+        "name": "Livello programma",
+        "state": {
+          "level1": "Livello 1",
+          "level2": "Livello 2",
+          "level3": "Livello 3"
+        }
       }
     },
     "binary_sensor": {
@@ -87,12 +95,83 @@
     "switch": {
       "air_boost": {
         "name": "Boost ricambio aria"
+      },
+      "ha_program": {
+        "name": "Programma Home Assistant"
+      }
+    },
+    "number": {
+      "program_level1": {
+        "name": "Programma livello 1"
+      },
+      "program_level2": {
+        "name": "Programma livello 2"
+      },
+      "program_level3": {
+        "name": "Programma livello 3"
       }
     }
   },
   "exceptions": {
     "holiday_read_only": {
       "message": "La modalità vacanza si imposta solo dal pannello o dall'app Smart365."
+    },
+    "no_loaded_entry": {
+      "message": "Nessun pannello Eurotherm Smart365 è caricato."
+    }
+  },
+  "services": {
+    "read_registers": {
+      "name": "Leggi registri",
+      "description": "Legge i registri Modbus grezzi dal pannello (diagnostica, per esplorare la mappa dei registri). I registri rifiutati dal pannello sono restituiti come null.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Pannello",
+          "description": "Pannello da cui leggere. Lascia vuoto se ne hai uno solo."
+        },
+        "address": {
+          "name": "Indirizzo",
+          "description": "Primo registro da leggere."
+        },
+        "count": {
+          "name": "Quantità",
+          "description": "Numero di registri da leggere (max 1000)."
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Programma settimanale in Home Assistant",
+        "description": "Scegli gli helper Programmazione (Impostazioni > Dispositivi e servizi > Aiutanti > Programmazione) che dicono quando ogni zona usa il livello 2 e il livello 3. Fuori da entrambi la zona usa il livello 1. Se sono attivi tutti e due vince il livello 3. Altri termostati (per esempio condizionatori o stufette dei bagni) possono seguire lo stesso programma: ricevono la temperatura del livello quando sono accesi in riscaldamento, ma non vengono mai accesi o spenti.",
+        "data": {
+          "zone0_level2_schedule": "Zona 1: programmazione livello 2",
+          "zone0_level3_schedule": "Zona 1: programmazione livello 3",
+          "zone1_level2_schedule": "Zona 2: programmazione livello 2",
+          "zone1_level3_schedule": "Zona 2: programmazione livello 3",
+          "zone2_level2_schedule": "Zona 3: programmazione livello 2",
+          "zone2_level3_schedule": "Zona 3: programmazione livello 3",
+          "zone3_level2_schedule": "Zona 4: programmazione livello 2",
+          "zone3_level3_schedule": "Zona 4: programmazione livello 3",
+          "zone4_level2_schedule": "Zona 5: programmazione livello 2",
+          "zone4_level3_schedule": "Zona 5: programmazione livello 3",
+          "zone5_level2_schedule": "Zona 6: programmazione livello 2",
+          "zone5_level3_schedule": "Zona 6: programmazione livello 3",
+          "zone6_level2_schedule": "Zona 7: programmazione livello 2",
+          "zone6_level3_schedule": "Zona 7: programmazione livello 3",
+          "zone7_level2_schedule": "Zona 8: programmazione livello 2",
+          "zone7_level3_schedule": "Zona 8: programmazione livello 3",
+          "zone0_climates": "Zona 1: altri termostati",
+          "zone1_climates": "Zona 2: altri termostati",
+          "zone2_climates": "Zona 3: altri termostati",
+          "zone3_climates": "Zona 4: altri termostati",
+          "zone4_climates": "Zona 5: altri termostati",
+          "zone5_climates": "Zona 6: altri termostati",
+          "zone6_climates": "Zona 7: altri termostati",
+          "zone7_climates": "Zona 8: altri termostati"
+        }
+      }
     }
   }
 }

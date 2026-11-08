@@ -56,6 +56,14 @@
       },
       "flow_setpoint": {
         "name": "Module {module} flow setpoint"
+      },
+      "program_level": {
+        "name": "Program level",
+        "state": {
+          "level1": "Level 1",
+          "level2": "Level 2",
+          "level3": "Level 3"
+        }
       }
     },
     "binary_sensor": {
@@ -87,12 +95,83 @@
     "switch": {
       "air_boost": {
         "name": "Air renewal boost"
+      },
+      "ha_program": {
+        "name": "Home Assistant program"
+      }
+    },
+    "number": {
+      "program_level1": {
+        "name": "Program level 1"
+      },
+      "program_level2": {
+        "name": "Program level 2"
+      },
+      "program_level3": {
+        "name": "Program level 3"
       }
     }
   },
   "exceptions": {
     "holiday_read_only": {
       "message": "Holiday mode can only be set from the panel or the Smart365 app."
+    },
+    "no_loaded_entry": {
+      "message": "No Eurotherm Smart365 panel is loaded."
+    }
+  },
+  "services": {
+    "read_registers": {
+      "name": "Read registers",
+      "description": "Reads raw Modbus holding registers from the panel (diagnostics, to explore the register map). Registers the panel refuses are returned as null.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Panel",
+          "description": "Panel to read from. Leave empty if you have only one."
+        },
+        "address": {
+          "name": "Address",
+          "description": "First register to read."
+        },
+        "count": {
+          "name": "Count",
+          "description": "Number of registers to read (max 1000)."
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Home Assistant weekly program",
+        "description": "Pick the schedule helpers (Settings > Devices & services > Helpers > Schedule) that define when each zone uses level 2 and level 3. Outside both, the zone uses level 1. Level 3 wins when both are on. Other thermostats (for example air conditioners or bathroom heaters) can follow the same program: they get the level temperature while they are on in heating, but are never turned on or off.",
+        "data": {
+          "zone0_level2_schedule": "Zone 1: level 2 schedule",
+          "zone0_level3_schedule": "Zone 1: level 3 schedule",
+          "zone1_level2_schedule": "Zone 2: level 2 schedule",
+          "zone1_level3_schedule": "Zone 2: level 3 schedule",
+          "zone2_level2_schedule": "Zone 3: level 2 schedule",
+          "zone2_level3_schedule": "Zone 3: level 3 schedule",
+          "zone3_level2_schedule": "Zone 4: level 2 schedule",
+          "zone3_level3_schedule": "Zone 4: level 3 schedule",
+          "zone4_level2_schedule": "Zone 5: level 2 schedule",
+          "zone4_level3_schedule": "Zone 5: level 3 schedule",
+          "zone5_level2_schedule": "Zone 6: level 2 schedule",
+          "zone5_level3_schedule": "Zone 6: level 3 schedule",
+          "zone6_level2_schedule": "Zone 7: level 2 schedule",
+          "zone6_level3_schedule": "Zone 7: level 3 schedule",
+          "zone7_level2_schedule": "Zone 8: level 2 schedule",
+          "zone7_level3_schedule": "Zone 8: level 3 schedule",
+          "zone0_climates": "Zone 1: other thermostats",
+          "zone1_climates": "Zone 2: other thermostats",
+          "zone2_climates": "Zone 3: other thermostats",
+          "zone3_climates": "Zone 4: other thermostats",
+          "zone4_climates": "Zone 5: other thermostats",
+          "zone5_climates": "Zone 6: other thermostats",
+          "zone6_climates": "Zone 7: other thermostats",
+          "zone7_climates": "Zone 8: other thermostats"
+        }
+      }
     }
   }
 }

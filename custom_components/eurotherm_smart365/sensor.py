@@ -26,7 +26,8 @@ from .const import (
     to_temperature,
 )
 from .coordinator import Room, Smart365ConfigEntry, Smart365Coordinator
-from .entity import Smart365Entity, Smart365RoomEntity
+from .entity import Smart365Entity, Smart365RoomEntity, Smart365ZoneEntity
+from .program import ZoneProgram
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -96,6 +97,7 @@ async def async_setup_entry(
             for description in ROOM_SENSORS
             if has_humidity or not description.needs_humidity
         )
+    entities.extend(ProgramLevelSensor(coordinator, p) for p in coordinator.programs.values())
     async_add_entities(entities)
 
 
@@ -156,3 +158,31 @@ class RoomSensor(Smart365RoomEntity, SensorEntity):
     @property
     def native_value(self) -> float | int | None:
         return self.entity_description.value_fn(self.room_regs)
+
+
+class ProgramLevelSensor(Smart365ZoneEntity, SensorEntity):
+    """Level selected now by the zone's Home Assistant schedules."""
+
+    _attr_translation_key = "program_level"
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_options = ["level1", "level2", "level3"]
+
+    def __init__(self, coordinator: Smart365Coordinator, program: ZoneProgram) -> None:
+        super().__init__(coordinator, program.zone, "program_level")
+        self._program = program
+
+    @property
+    def available(self) -> bool:
+        return True
+
+    @property
+    def native_value(self) -> str:
+        return f"level{self._program.level}"
+
+    @property
+    def extra_state_attributes(self) -> dict[str, float]:
+        return {"target_temperature": self._program.target}
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        self.async_on_remove(self._program.async_add_listener(self.async_write_ha_state))

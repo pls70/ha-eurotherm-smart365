@@ -91,6 +91,7 @@ class Smart365Coordinator(DataUpdateCoordinator[Smart365Data]):
         )
         self.client = client
         self.topology = Topology()
+        self.programs: dict = {}
 
     async def _async_setup(self) -> None:
         try:
